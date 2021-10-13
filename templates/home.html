@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <script type="text/javascript">
+
+
+    </script>
+</head>
+<body>
+<p><h3><font size="20">坂道系列_Youtube頻道資訊</font></h3></p>
+<hr>
+<p><font size="5">近期上傳影片資訊</font></p>
+<form>
+    <select id=RecentVideo name="options" ONCHANGE="document.getElementById('rv_iframe').src = this.options[this.selectedIndex].value"
+    style="font-size:20px">
+    <option>坂道系列</option>
+        <option value="saku_recent.html">櫻坂</option>
+        <option value="nogi_recent.html">乃木坂</option>
+        <option value="hinata_recent.html">日向坂</option>
+    </select>
+    <br>
+    <iframe name="iframe" id="rv_iframe" width="1500" height="800"></iframe>
+</form>
+
+<hr>
+
+<p><font size="5">歷年觀看次數(月份統計)/影片發布數</font></p>
+<form>
+    <select id=history_videos name="options" ONCHANGE="document.getElementById('Bar_iframe').src = this.options[this.selectedIndex].value"
+    style="font-size:20px">
+    <option value="sakamichi.html">坂道系列</option>
+        <option value="sakamichi.html">綜合統計</option>
+        <option value="sakurazaka46.html">櫻坂</option>
+        <option value="Nogizaka46.html">乃木坂</option>
+        <option value="Hinatazaka46.html">日向坂</option>
+    </select>
+    <select id=top5 name="options" ONCHANGE="document.getElementById('Bar_iframe').src = this.options[this.selectedIndex].value"
+    style="font-size:20px">
+    <option value="mixRank.html">觀看次數Top20</option>
+        <option value="mixRank.html">綜合排行</option>
+        <option value="sakuRank.html">櫻坂</option>
+        <option value="nogiRank.html">乃木坂</option>
+        <option value="hinataRank.html">日向坂</option>
+    </select>
+    <br>
+    <iframe name="iframe" id="Bar_iframe" width="1500" height="800"></iframe>
+</form>
+
+
+
+</body>
+</html>
+
+
+<!-- for loop -->
+<!--    {% for i in range(0, len) %}-->
+<!--        {% if i == 2 %}-->
+<!--        <td><img id="imgUrl" src="{{ data[i] }}"></td>-->
+<!--        {% else %}-->
+<!--            <td id="value">{{ data[i] }}</td>-->
+<!--        {% endif%}-->
+<!--    {% endfor %}-->
