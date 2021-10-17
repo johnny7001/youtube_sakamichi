@@ -8,13 +8,17 @@
     </script>
 </head>
 <body>
-<p><h3><font size="20">坂道系列_Youtube頻道資訊</font></h3></p>
+<p><h3><font size="20">坂道系列_Youtube官方頻道資訊</font></h3></p>
 <hr>
-<p><font size="5">近期上傳影片資訊</font></p>
+<p><b>本網頁目的: 可以將某個領域或目標的Youtube頻道進行比較, 得知觀看次數及上傳影片的頻率等...</b></p>
+<p><font size="5">近期上傳影片資訊(點選下拉選單顯示最近上傳的20部影片)</font></p>
+<P>透過串接 YouTube Data API v3, 獲取影片頻道資料後, 從中抓取需要的資料後整理成表格後呈現</P>
+<p>同時間將資料插入資料庫儲存，方便進行篩選或是統計分析</p>
+<p><font color="red">------由於影片有區域問題, 有些必須用vpn跨區才能收看------</font></p>
 <form>
     <select id=RecentVideo name="options" ONCHANGE="document.getElementById('rv_iframe').src = this.options[this.selectedIndex].value"
     style="font-size:20px">
-    <option value="saku_recent.html">請選擇...</option>
+    <option>請選擇...</option>
         <option value="saku_recent.html">櫻坂</option>
         <option value="nogi_recent.html">乃木坂</option>
         <option value="hinata_recent.html">日向坂</option>
@@ -26,6 +30,7 @@
 <hr>
 
 <p><font size="5">歷年觀看次數(月份統計)/影片發布數</font></p>
+<p>點取下拉選單顯示頻道月份觀看統計次數及上傳影片數</p>
 <form>
     <select id=history_videos name="options" ONCHANGE="document.getElementById('Bar_iframe').src = this.options[this.selectedIndex].value"
     style="font-size:20px">
@@ -47,10 +52,10 @@
     <iframe name="iframe" id="Bar_iframe" width="1500" height="800"></iframe>
 </form>
 
-
-
 </body>
 </html>
+<p><b>未來更新目標: 抓取YouTube頻道粉絲數, 直播收入等數據與分析報告...</b></p>
+
 
 
 <!-- for loop -->

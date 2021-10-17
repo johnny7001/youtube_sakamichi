@@ -92,7 +92,6 @@ def get_channel_videos(channel_id): #取得影片名稱, 鏈結, 上傳時間...
                 video_url = 'https://www.youtube.com/watch?v=' + \
                             row['snippet']['resourceId']['videoId']
                 videoId = row['snippet']['resourceId']['videoId']
-                print(videoId)
                 video_desc = get_videos_statistics(videoId) #呼叫影片detail的內容
                 viewCount = video_desc[0]
                 likeCount = video_desc[1]
@@ -120,6 +119,15 @@ def get_channel_videos(channel_id): #取得影片名稱, 鏈結, 上傳時間...
                                                                                           publishedAt)
                     db.cursor.execute(sql)
                     db.conn.commit()
+                else:
+                    result = db.cursor.fetchone()
+                    if viewCount != result[5]:
+                        sql = "update youtube_videos set title = '{}', videoUrl = '{}', imgUrl = '{}', uploadDate = '{}', viewCount = '{}', " \
+                              "likeCount = '{}', dislikeCount = '{}', commentCount = '{}', published_date = '{}' where id = '{}'".\
+                            format(title.replace("'", ""),video_url, img, uploadDate,viewCount, likeCount
+                                   ,dislikeCount, commentCount,publishedAt, result[0])
+                        db.cursor.execute(sql)
+                        db.conn.commit()
 
             page += 1
         else:
@@ -165,6 +173,15 @@ def get_channel_videos(channel_id): #取得影片名稱, 鏈結, 上傳時間...
                                                                                               commentCount, publishedAt)
                         db.cursor.execute(sql)
                         db.conn.commit()
+                    else:
+                        result = db.cursor.fetchone()
+                        if viewCount != result[5]:
+                            sql = "update youtube_videos set title = '{}', videoUrl = '{}', imgUrl = '{}', uploadDate = '{}', viewCount = '{}', " \
+                                  "likeCount = '{}', dislikeCount = '{}', commentCount = '{}', published_date = '{}' where id = '{}'". \
+                                format(title.replace("'", ""), video_url, img, uploadDate, viewCount, likeCount
+                                       , dislikeCount, commentCount, publishedAt, result[0])
+                            db.cursor.execute(sql)
+                            db.conn.commit()
                 break
             else:
                 next_page_token = data['nextPageToken']
@@ -202,6 +219,15 @@ def get_channel_videos(channel_id): #取得影片名稱, 鏈結, 上傳時間...
                                                                                               commentCount, publishedAt)
                         db.cursor.execute(sql)
                         db.conn.commit()
+                    else:
+                        result = db.cursor.fetchone()
+                        if viewCount != result[5]:
+                            sql = "update youtube_videos set title = '{}', videoUrl = '{}', imgUrl = '{}', uploadDate = '{}', viewCount = '{}', " \
+                                  "likeCount = '{}', dislikeCount = '{}', commentCount = '{}', published_date = '{}' where id = '{}'". \
+                                format(title.replace("'", ""), video_url, img, uploadDate, viewCount, likeCount
+                                       , dislikeCount, commentCount, publishedAt, result[0])
+                            db.cursor.execute(sql)
+                            db.conn.commit()
             page += 1
     db.conn.close()
 
@@ -340,7 +366,33 @@ def writeBaseHtml(filename): #基本網頁架構
         <table id="tds">
             <thead>
                 <tr role='row'>
-                <th>排行</th>
+                <th>影片標題</th>
+                <th>鏈結</th>
+                <th>圖片</th>
+                <th>觀看次數</th>
+                <th>喜歡</th>
+                <th>不喜歡</th>
+                <th>留言數</th>
+                <th>發布日期</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+        f.write(base_html)
+
+def writeRankHtml(filename): #基本網頁架構
+    with open(filename, 'w+', encoding='utf-8') as f:
+        base_html = """
+        <html>
+        <head>
+            <meta charset='utf-8'>
+            <style>#tds table,#tds tr,#tds td{border:1px solid #000;}</style>
+        </head>
+        <body>
+        <table id="tds">
+            <thead>
+                <tr role='row'>
+                <th>排名</th>
                 <th>影片標題</th>
                 <th>鏈結</th>
                 <th>圖片</th>
@@ -420,24 +472,26 @@ def get_TotalviewCount():
                 db.conn.commit()
             p_date_list.append(datetime.strptime(p_date[:-3], "%Y-%m"))
             m_vc_list.append(month_viewCount)
-            m_videos_list.append(month_videos)
-
+            m_videos_list.append(-month_videos)
+    df = pd.DataFrame({'publishedMonth': p_date_list, 'TotalViewCount': m_vc_list, 'TotalVideos': m_videos_list})
+    df.to_csv('templates/Hinatazaka46.csv')
+    print(df)
     db.conn.close()
 
 def get_plotly_line():
     # df = pd.DataFrame({'publishedMonth':p_date_list, 'TotalViewCount':m_vc_list, 'TotalVideos':m_videos_list})
-    df = pd.read_csv('templates/sakurazaka46.csv')
+    df = pd.read_csv('templates/Hinatazaka46.csv')
     fig = make_subplots(rows=2, cols=1)
-    fig.add_trace(go.Bar(x=df['publishedMonth'], y=df['TotalViewCount'], name='櫻坂46總觀看次數', text=df['TotalViewCount'],
+    fig.add_trace(go.Bar(x=df['publishedMonth'], y=df['TotalViewCount'], name='日向坂46總觀看次數', text=df['TotalViewCount'],
                         textfont=dict(size=20),
-                         marker=dict(color='#FCA2DB')), row=1, col=1)
+                         marker=dict(color='#2EFAEB')), row=1, col=1)
 
-    fig.add_trace(go.Bar(x=df['publishedMonth'], y=-df['TotalVideos'], name='櫻坂46影片發布數', text=df['TotalVideos'],
+    fig.add_trace(go.Bar(x=df['publishedMonth'], y=-df['TotalVideos'], name='日向坂46影片發布數',
                          textfont=dict(size=20),
-                         marker=dict(color='#FCA2DB')), row=2, col=1)
+                         marker=dict(color='#2EFAEB')), row=2, col=1)
 
-    fig.update_layout(title_text='櫻坂_YouTube觀看月份統計/影片數', font=dict(size=20))
-    plotly.offline.plot(fig, filename='templates/sakurazaka46.html', auto_open=False)
+    fig.update_layout(title_text='日向坂_YouTube觀看月份統計/影片數', font=dict(size=20))
+    plotly.offline.plot(fig, filename='templates/Hinatazaka46.html', auto_open=False)
     fig.show()
 def migrate_Barline():
     df1 = pd.read_csv('templates/Hinatazaka46.csv')
@@ -449,7 +503,7 @@ def migrate_Barline():
                         textfont=dict(size=20),
                          marker=dict(color='#2EFAEB')), row=1, col=1)
 
-    fig.add_trace(go.Bar(x=df1['publishedMonth'], y=-df1['TotalVideos'], name='日向坂46影片發布數', text=df1['TotalVideos'],
+    fig.add_trace(go.Bar(x=df1['publishedMonth'], y=-df1['TotalVideos'], name='日向坂46影片發布數',
                         textfont=dict(size=20),
                          marker=dict(color='#2EFAEB')), row=2, col=1)
 
@@ -457,20 +511,20 @@ def migrate_Barline():
                         textfont=dict(size=20),
                          marker=dict(color='#E74AF4')), row=1, col=1)
 
-    fig.add_trace(go.Bar(x=df2['publishedMonth'], y=-df2['TotalVideos'], name='乃木坂46影片發布數', text=df2['TotalVideos'],
+    fig.add_trace(go.Bar(x=df2['publishedMonth'], y=-df2['TotalVideos'], name='乃木坂46影片發布數',
                         textfont=dict(size=20),
                          marker=dict(color='#E74AF4')), row=2, col=1)
 
-    fig.add_trace(go.Bar(x=df3['publishedMonth'], y=df3['TotalViewCount'], name='櫻坂46總觀看次數', text=df3['TotalViewCount'],
+    fig.add_trace(go.Bar(x=df3['publishedMonth'], y=df3['TotalViewCount'], name='櫻坂46總觀看次數',text=df3['TotalViewCount'],
                         textfont=dict(size=20),
                          marker=dict(color='#FCA2DB')), row=1, col=1)
 
-    fig.add_trace(go.Bar(x=df3['publishedMonth'], y=-df3['TotalVideos'], name='櫻坂46影片發布數', text=df3['TotalVideos'],
+    fig.add_trace(go.Bar(x=df3['publishedMonth'], y=-df3['TotalVideos'], name='櫻坂46影片發布數',
                          textfont=dict(size=20),
                          marker=dict(color='#FCA2DB')), row=2, col=1)
 
     fig.update_layout(title_text='YouTube觀看月份統計/影片數', font=dict(size=20))
-    plotly.offline.plot(fig, filename='sakamichi.html', auto_open=False)
+    plotly.offline.plot(fig, filename='templates/sakamichi.html', auto_open=False)
     fig.show()
 
 def get_videoId(channel_id): #抓取videoId
@@ -533,7 +587,7 @@ def channel_videos_noPage(channel_id): #沒有換頁版本
     playlist_id = resp['items'][0]['contentDetails']['relatedPlaylists']['uploads']
     playlist_url = base_url + 'playlistItems?part={}&playlistId={}&maxResults={}&key={}'.format('snippet',
                                                                                                 playlist_id,
-                                                                                                50,
+                                                                                                20,
                                                                                                 YOUTUBE_API_KEY)
     data = get_json_data(playlist_url)
     data_list = []
@@ -552,15 +606,15 @@ def channel_videos_noPage(channel_id): #沒有換頁版本
 
         published_data = publishedTime(videoId) #影片發布時間
         publishedAt = published_data[:10]
-        uploadDate = row['snippet']['publishedAt'][:10].replace("T", "").replace("Z", "")
+        # uploadDate = row['snippet']['publishedAt'][:10].replace("T", "").replace("Z", "")
 
         data_list.append([title, video_url, img, viewCount, likeCount, dislikeCount, commentCount, publishedAt])
-
+    return data_list
         # print('標題:{}, 影片鏈結:{}, 圖片鏈結:{}, 觀看次數:{}, 喜歡:{}, 不喜歡:{}, 留言數:{}, 發布時間:{}'.format(title,
         #                                                                                 video_url, img, viewCount,
         #                                                                                 likeCount, dislikeCount,
         #                                                                                 commentCount, publishedAt))
-    return data_list
+
 
 
 
@@ -577,4 +631,7 @@ def connect_Youtube():
         include_granted_scopes='true')
 
     YOUTUBE_API_KEY = "AIzaSyCt893vHOjQVlzmaKSBXBCcsr8FFO4GK_U"  # API金鑰
+
+# get_TotalviewCount()
+# get_plotly_line()
 

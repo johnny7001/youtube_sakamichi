@@ -1,5 +1,5 @@
 import db
-from youtube1 import writeBaseHtml, channel_videos_noPage, connect_Youtube
+from youtube1 import writeBaseHtml, channel_videos_noPage, connect_Youtube, writeRankHtml
 from flask import Flask, request, render_template, redirect
 import google_auth_oauthlib.flow
 from googleapiclient.discovery import build
@@ -45,23 +45,23 @@ youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
 
 def video_rank():
-    sql = "select id, title, videoUrl, imgUrl, viewCount, likeCount, dislikeCount, commentCount, published_date from hinata_youtube " \
+    sql = "select title, videoUrl, imgUrl, viewCount, likeCount, dislikeCount, commentCount, published_date from youtube_videos " \
           "order by viewCount desc limit 20"
     db.cursor.execute(sql)
     db.conn.commit()
     result = db.cursor.fetchall()
-    writeBaseHtml('templates/hinataRank.html')
+    writeRankHtml('templates/nogiRank.html')
     rank = 0
     for row in result:
         rank += 1
-        title = row[1]
-        videoUrl = row[2]
-        imgUrl = row[3]
-        viewCount = row[4]
-        likeCount = row[5]
-        dislikeCount = row[6]
-        commentCount = row[7]
-        published_date = row[8]
+        title = row[0]
+        videoUrl = row[1]
+        imgUrl = row[2]
+        viewCount = row[3]
+        likeCount = row[4]
+        dislikeCount = row[5]
+        commentCount = row[6]
+        published_date = row[7]
         html_str = """
                         <tr>
                             <td>{{ rank }}</td>
@@ -76,12 +76,12 @@ def video_rank():
                         </tr>
                 """
         comment = Template(html_str)
-        with open('templates/hinataRank.html', 'a', encoding='utf-8') as f:
+        with open('templates/nogiRank.html', 'a', encoding='utf-8') as f:
             f.write(comment.render(rank=rank, title=title, videoUrl=videoUrl, imgUrl=imgUrl, viewCount=viewCount,
                                    likeCount=likeCount, dislikeCount=dislikeCount, commentCount=commentCount,
                                    published_date=published_date))
 
-    with open('templates/hinataRank.html', 'a', encoding='utf-8') as f:
+    with open('templates/nogiRank.html', 'a', encoding='utf-8') as f:
         base_html = """
         </tbody>
         </table>
@@ -105,36 +105,39 @@ def channelnoPage():
     channel_id = 'UCR0V48DJyWbwEAdxLL5FjxA' #日向坂
 
     data = channel_videos_noPage(channel_id=channel_id)  #type=list
-    writeBaseHtml('templates/mixRank.html')
+    writeBaseHtml('templates/hinata_recent.html')
 
     for row in data:
-        title = row[0]
-        videoUrl = row[1]
-        imgUrl = row[2]
-        viewCount = row[3]
-        likeCount = row[4]
-        dislikeCount = row[5]
-        commentCount = row[6]
-        published_date = row[7]
-        html_str = """
-                        <tr>
-                            <td>{{ title }}</td>
-                            <td><a href="{{ videoUrl }}" target="_blank">{{ videoUrl }}</td>
-                            <td><img src="{{ imgUrl }}"></td>
-                            <td>{{ viewCount }}</td>
-                            <td>{{ likeCount }}</td>
-                            <td>{{ dislikeCount }}</td>
-                            <td>{{ commentCount }}</td>
-                            <td>{{ published_date }}</td>
-                        </tr>
-                """
-        comment = Template(html_str)
-        with open('hinata_recent.html', 'a', encoding='utf-8') as f:
-            f.write(comment.render(title=title, videoUrl=videoUrl, imgUrl=imgUrl, viewCount=viewCount,
-                                   likeCount=likeCount, dislikeCount=dislikeCount, commentCount=commentCount,
-                                   published_date=published_date))
+        if type(row) is type(None):
+            print('no find')
+        else:
+            title = row[0]
+            videoUrl = row[1]
+            imgUrl = row[2]
+            viewCount = row[3]
+            likeCount = row[4]
+            dislikeCount = row[5]
+            commentCount = row[6]
+            published_date = row[7]
+            html_str = """
+                            <tr>
+                                <td>{{ title }}</td>
+                                <td><a href="{{ videoUrl }}" target="_blank">{{ videoUrl }}</td>
+                                <td><img src="{{ imgUrl }}"></td>
+                                <td>{{ viewCount }}</td>
+                                <td>{{ likeCount }}</td>
+                                <td>{{ dislikeCount }}</td>
+                                <td>{{ commentCount }}</td>
+                                <td>{{ published_date }}</td>
+                            </tr>
+                    """
+            comment = Template(html_str)
+            with open('templates/hinata_recent.html', 'a', encoding='utf-8') as f:
+                f.write(comment.render(title=title, videoUrl=videoUrl, imgUrl=imgUrl, viewCount=viewCount,
+                                       likeCount=likeCount, dislikeCount=dislikeCount, commentCount=commentCount,
+                                       published_date=published_date))
 
-    with open('hinata_recent.html', 'a', encoding='utf-8') as f:
+    with open('templates/hinata_recent.html', 'a', encoding='utf-8') as f:
         base_html = """
         </tbody>
         </table>
@@ -191,5 +194,3 @@ def mixRank():
         """
         f.write(base_html)
     db.conn.close()
-
-video_rank()
